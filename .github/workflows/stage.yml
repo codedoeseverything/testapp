@@ -74,21 +74,26 @@ jobs:
         run: |
           echo "TESTA="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTA) >> GITHUB_ENV
           echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV
-                             
 
-# ################################################
-# #  AWS CLI CONFIGURATION - Current
-# ################################################ 
-#       - name: Configure AWS credentials from P1 AU account
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ env.TESTA }}
-#           aws-secret-access-key: ${{ env.TESTS }}
-#           aws-region: ap-southeast-2
-#         env:
-#           AWS_ACCESS_KEY_ID: ${{ env.TESTA }}
-#           AWS_SECRET_ACCESS_KEY: ${{ env.TESTS }}
 
+
+      - name: Unset AWS creds env vars
+            run: |
+              echo "AWS_ACCESS_KEY_ID=" >> $GITHUB_ENV
+              echo "AWS_SECRET_ACCESS_KEY=" >> $GITHUB_ENV
+              echo "AWS_SESSION_TOKEN=" >> $GITHUB_ENV
+              echo "AWS_DEFAULT_REGION=" >> $GITHUB_ENV
+              echo "AWS_REGION=" >> $GITHUB_ENV
+
+################################################
+#  AWS CLI CONFIGURATION - Current
+################################################ 
+      - name: Configure AWS credentials from P1 AU account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ env.TESTA }}
+          aws-secret-access-key: ${{ env.TESTS }}
+          aws-region: ap-southeast-2
 
 
 # ##########################################################
