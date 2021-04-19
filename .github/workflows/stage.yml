@@ -72,7 +72,6 @@ jobs:
 # ######################################################
       - name: Export CFN output values only if ISZONEEXIST is false  
         run: |
-          echo "TESTA="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTA)
           echo "TESTA="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTA) >> GITHUB_ENV
           echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV
                              
@@ -83,9 +82,12 @@ jobs:
       - name: Configure AWS credentials from P1 AU account
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.TESTA }}
-          aws-secret-access-key: ${{ secrets.TESTS }}
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.TESTA }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.TESTS }}
 
 
 
