@@ -28,20 +28,7 @@ jobs:
 ################################################
     env:
       REGION : ap-southeast-2
-      ENV : stage # Valid values are sandbox,stage,live only
-      STACK_NAME: beta # Valid values are au,us,uk,p2,lf,nu,alpha,beta,shared only
-      SUBDOMAIN: appv2
-      CFNS3BucketName: devops-cfn-templates1
-      PRIVATES3BucketName: devops-private1
-      LOGGING_LEVEL: INFO  #ERROR, INFO, or NONE.
-      ISZONEEXIST: false  #false, true.
-      P1PUBLICZONEID: Z07084721W45W9OIAP0PJ
-      PUBLICZONENAME: testing.internal.p2.practera.com
-      PRIVATEZONENAME: local.testing.internal.p2.practera.com
-      PUBLICZONEID: NA
-      RUNSECRETJOB: true
-      RUNACMCERTJOB: true
-      S3BUCKETFLAGCHECK: beta-cfn-empty-resource
+      
 
 
 ################################################
@@ -122,6 +109,8 @@ jobs:
 ##########################################################
       - name: echo hello
         run: |
+          echo $TESTA
+          echo "TESTS"
           echo "hello"
 
 
