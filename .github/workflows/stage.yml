@@ -76,6 +76,31 @@ jobs:
           echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV
                              
 
+  second:
+    needs: release-stage
+    name: second
+    runs-on: ubuntu-latest
+
+
+
+################################################
+#  GITHUB ACTIONS GLOBAL ENV VARIABLES  
+################################################
+    env:
+      REGION : ap-southeast-2
+      
+
+
+################################################
+#  GITHUB REPO CHECKOUT 
+################################################
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+
+
 ################################################
 #  AWS CLI CONFIGURATION - Current
 ################################################ 
