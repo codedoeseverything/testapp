@@ -100,7 +100,7 @@ jobs:
 ##########################################################
       - name: AWS S3 Sync operation
         run: |
-          aws s3 ls
+          aws s3 ls 
 
 
 
@@ -110,7 +110,7 @@ jobs:
       - name: echo hello
         run: |
           echo $TESTA
-          echo "TESTS"
+          echo $TESTS
           echo "hello"
 
 
