@@ -58,8 +58,10 @@ jobs:
 ##########################################################
 #  AWS S3 ls- master 
 ##########################################################
-      - name: AWS S3 Sync operation
+      - name: AWS S3 master 
         run: |
+          aws configure list
+          aws iam get-user
           aws s3 ls
 
 
@@ -71,8 +73,8 @@ jobs:
       - name: Export CFN output values only if ISZONEEXIST is false  
         run: |
           echo "TESTA="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTA) >> GITHUB_ENV
-          echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV               
-    
+          echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV
+                             
 
 ################################################
 #  AWS CLI CONFIGURATION - Current
@@ -98,10 +100,11 @@ jobs:
 ##########################################################
 #  AWS S3 ls test
 ##########################################################
-      - name: AWS S3 Sync operation
+      - name: TEST ACC
         run: |
+          aws configure list
+          aws iam get-user
           aws s3 ls 
-
 
 
 ##########################################################
