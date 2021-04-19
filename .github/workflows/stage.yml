@@ -76,18 +76,18 @@ jobs:
           echo "TESTS="$(aws secretsmanager get-secret-value --secret-id beta-AWSAccountID-stage | jq --raw-output '.SecretString' | jq -r .TESTS) >> GITHUB_ENV
                              
 
-################################################
-#  AWS CLI CONFIGURATION - Current
-################################################ 
-      - name: Configure AWS credentials from P1 AU account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ env.TESTA }}
-          aws-secret-access-key: ${{ env.TESTS }}
-          aws-region: ap-southeast-2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.TESTA }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TESTS }}
+# ################################################
+# #  AWS CLI CONFIGURATION - Current
+# ################################################ 
+#       - name: Configure AWS credentials from P1 AU account
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ env.TESTA }}
+#           aws-secret-access-key: ${{ env.TESTS }}
+#           aws-region: ap-southeast-2
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ env.TESTA }}
+#           AWS_SECRET_ACCESS_KEY: ${{ env.TESTS }}
 
 
 
@@ -100,14 +100,14 @@ jobs:
 
 
 
-##########################################################
-#  AWS S3 ls test
-##########################################################
-      - name: TEST ACC
-        run: |
-          aws configure list
-          aws iam get-user
-          aws s3 ls 
+# ##########################################################
+# #  AWS S3 ls test
+# ##########################################################
+#       - name: TEST ACC
+#         run: |
+#           aws configure list
+#           aws iam get-user
+#           aws s3 ls 
 
 
 ##########################################################
@@ -118,6 +118,8 @@ jobs:
           echo $TESTA
           echo $TESTS
           echo "hello"
+          echo ${{ env.TESTA }}
+          echo ${{ env.TESTS }}
 
 
 
