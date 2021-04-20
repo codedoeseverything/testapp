@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   push:
     # branches: [ 'trunk' ]
-    branches: [ 'master' ]
+    # branches: [ 'master' ]
     
 
 ################################################

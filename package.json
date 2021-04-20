@@ -1,0 +1,22 @@
+{
+  "name": "test-appv2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codedoeseverything/testapp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codedoeseverything/testapp/issues"
+  },
+  "homepage": "https://github.com/codedoeseverything/testapp#readme",
+  "devDependencies": {
+    "serverless": "^2.35.0"
+  }
+}
