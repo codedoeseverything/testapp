@@ -40,103 +40,103 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${env:APPV2S3BUCKET}
-        BucketEncryption: 
-          ServerSideEncryptionConfiguration: 
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-        LifecycleConfiguration:
-          Rules:
-          - AbortIncompleteMultipartUpload:
-              DaysAfterInitiation: 7
-            Status: Enabled
-          - NoncurrentVersionExpirationInDays: !If [HasNoncurrentVersionExpirationInDays, '${env:NONCURRENTVERSION_EXPIREINDAYS}', 1]
-            Status: !If [HasNoncurrentVersionExpirationInDays, Enabled, Disabled]
-          - ExpirationInDays: !If [HasExpirationInDays, '${env:DEFAULT_EXPIREINDAYS}', 1]
-            Status: !If [HasExpirationInDays, Enabled, Disabled]
-        VersioningConfiguration: !If [HasVersioning, {Status: Enabled}, !If [HadVersioning, {Status: Suspended}, !Ref 'AWS::NoValue']]
+        # BucketEncryption: 
+        #   ServerSideEncryptionConfiguration: 
+        #   - ServerSideEncryptionByDefault:
+        #       SSEAlgorithm: AES256
+        # LifecycleConfiguration:
+        #   Rules:
+        #   - AbortIncompleteMultipartUpload:
+        #       DaysAfterInitiation: 7
+        #     Status: Enabled
+        #   - NoncurrentVersionExpirationInDays: !If [HasNoncurrentVersionExpirationInDays, '${env:NONCURRENTVERSION_EXPIREINDAYS}', 1]
+        #     Status: !If [HasNoncurrentVersionExpirationInDays, Enabled, Disabled]
+        #   - ExpirationInDays: !If [HasExpirationInDays, '${env:DEFAULT_EXPIREINDAYS}', 1]
+        #     Status: !If [HasExpirationInDays, Enabled, Disabled]
+        # VersioningConfiguration: !If [HasVersioning, {Status: Enabled}, !If [HadVersioning, {Status: Suspended}, !Ref 'AWS::NoValue']]
 
 
-    ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
-    AppV2S3BucketPolicy:
-      DependsOn: [AppV2CloudFrontOriginAccessIdentity]
-      Type: AWS::S3::BucketPolicy
-      Properties:
-        Bucket:
-          Ref: AppV2S3Bucket
-        PolicyDocument:
-          Statement:
-          - Sid: S3-Bucket-Accesible via CDN OAI only
-            Action: 's3:GetObject'
-            Effect: Allow
-            Resource: !Sub 'arn:aws:s3:::${AppV2S3Bucket}/*'
-            Principal:
-              CanonicalUser: !GetAtt AppV2CloudFrontOriginAccessIdentity.S3CanonicalUserId 
-          - Sid: AllowSSLRequestsOnly # AWS Foundational Security Best Practices v1.0.0 S3.5
-            Effect: Deny
-            Principal: '*'
-            Action: 's3:*'
-            Resource:
-            - !GetAtt 'AppV2S3Bucket.Arn'
-            # - !Sub '${AppV2S3Bucket.Arn}/*'
-            Condition:
-              Bool:
-                'aws:SecureTransport': false
+    # ## Specifying the policies to make sure all files inside the Bucket are avaialble to CloudFront
+    # AppV2S3BucketPolicy:
+    #   DependsOn: [AppV2CloudFrontOriginAccessIdentity]
+    #   Type: AWS::S3::BucketPolicy
+    #   Properties:
+    #     Bucket:
+    #       Ref: AppV2S3Bucket
+    #     PolicyDocument:
+    #       Statement:
+    #       - Sid: S3-Bucket-Accesible via CDN OAI only
+    #         Action: 's3:GetObject'
+    #         Effect: Allow
+    #         Resource: !Sub 'arn:aws:s3:::${AppV2S3Bucket}/*'
+    #         Principal:
+    #           CanonicalUser: !GetAtt AppV2CloudFrontOriginAccessIdentity.S3CanonicalUserId 
+    #       - Sid: AllowSSLRequestsOnly # AWS Foundational Security Best Practices v1.0.0 S3.5
+    #         Effect: Deny
+    #         Principal: '*'
+    #         Action: 's3:*'
+    #         Resource:
+    #         - !GetAtt 'AppV2S3Bucket.Arn'
+    #         # - !Sub '${AppV2S3Bucket.Arn}/*'
+    #         Condition:
+    #           Bool:
+    #             'aws:SecureTransport': false
 
-    ## Specifying the CloudFront Origin Access Identity CDN Distribution to server your Web Application
-    AppV2CloudFrontOriginAccessIdentity:
-      Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
-      Properties:
-        CloudFrontOriginAccessIdentityConfig:
-          Comment: "Cloudfront Origin identity for ${env:APPV2S3BUCKET}"
+    # ## Specifying the CloudFront Origin Access Identity CDN Distribution to server your Web Application
+    # AppV2CloudFrontOriginAccessIdentity:
+    #   Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    #   Properties:
+    #     CloudFrontOriginAccessIdentityConfig:
+    #       Comment: "Cloudfront Origin identity for ${env:APPV2S3BUCKET}"
 
-    ## Specifying the CloudFront Distribution to server your Web Application
-    AppV2CloudFrontDistribution:
-      Type: AWS::CloudFront::Distribution
-      Properties:
-        DistributionConfig:
-          Aliases:
-            - ${env:APPV2S3BUCKET}
-          Comment: "Cloudfront Origin identity for ${env:APPV2S3BUCKET}"
-          DefaultCacheBehavior:
-            AllowedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-            CachedMethods:
-            - GET
-            - HEAD
-            - OPTIONS
-            Compress: true
-            DefaultTTL: 3600 # in seconds
-            ForwardedValues:
-              Cookies:
-                Forward: none
-              QueryString: false
-            MaxTTL: 86400 # in seconds
-            MinTTL: 60 # in seconds
-            TargetOriginId: ${env:APPV2S3BUCKET}
-            ViewerProtocolPolicy: 'redirect-to-https'
-          DefaultRootObject: index.html
-          CustomErrorResponses:
-            - ErrorCode: 404
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-            - ErrorCode: 403
-              ResponseCode: 200
-              ResponsePagePath: /index.html
-          Enabled: true
-          HttpVersion: http2
-          IPV6Enabled: true
-          Origins:
-          - DomainName: !GetAtt 'AppV2S3Bucket.RegionalDomainName'
-            Id: ${env:APPV2S3BUCKET}
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${AppV2CloudFrontOriginAccessIdentity}'
-          PriceClass: 'PriceClass_All'
-          # ViewerCertificate:
-          #   AcmCertificateArn: {'Fn::ImportValue': '${env:STACK_NAME}-APISharedACMCertificateArn-${env:ENV}'}
-          #   MinimumProtocolVersion: 'TLSv1.2_2019'
-          #   SslSupportMethod: 'sni-only'
+    # ## Specifying the CloudFront Distribution to server your Web Application
+    # AppV2CloudFrontDistribution:
+    #   Type: AWS::CloudFront::Distribution
+    #   Properties:
+    #     DistributionConfig:
+    #       Aliases:
+    #         - ${env:APPV2S3BUCKET}
+    #       Comment: "Cloudfront Origin identity for ${env:APPV2S3BUCKET}"
+    #       DefaultCacheBehavior:
+    #         AllowedMethods:
+    #         - GET
+    #         - HEAD
+    #         - OPTIONS
+    #         CachedMethods:
+    #         - GET
+    #         - HEAD
+    #         - OPTIONS
+    #         Compress: true
+    #         DefaultTTL: 3600 # in seconds
+    #         ForwardedValues:
+    #           Cookies:
+    #             Forward: none
+    #           QueryString: false
+    #         MaxTTL: 86400 # in seconds
+    #         MinTTL: 60 # in seconds
+    #         TargetOriginId: ${env:APPV2S3BUCKET}
+    #         ViewerProtocolPolicy: 'redirect-to-https'
+    #       DefaultRootObject: index.html
+    #       CustomErrorResponses:
+    #         - ErrorCode: 404
+    #           ResponseCode: 200
+    #           ResponsePagePath: /index.html
+    #         - ErrorCode: 403
+    #           ResponseCode: 200
+    #           ResponsePagePath: /index.html
+    #       Enabled: true
+    #       HttpVersion: http2
+    #       IPV6Enabled: true
+    #       Origins:
+    #       - DomainName: !GetAtt 'AppV2S3Bucket.RegionalDomainName'
+    #         Id: ${env:APPV2S3BUCKET}
+    #         S3OriginConfig:
+    #           OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${AppV2CloudFrontOriginAccessIdentity}'
+    #       PriceClass: 'PriceClass_All'
+    #       # ViewerCertificate:
+    #       #   AcmCertificateArn: {'Fn::ImportValue': '${env:STACK_NAME}-APISharedACMCertificateArn-${env:ENV}'}
+    #       #   MinimumProtocolVersion: 'TLSv1.2_2019'
+    #       #   SslSupportMethod: 'sni-only'
     
     # Route53RecordV2:
     #   Type: 'AWS::Route53::RecordSetGroup'
@@ -180,27 +180,27 @@ resources:
     #       Value: !Ref AppV2CloudFrontDistribution
     #     TreatMissingData: notBreaching
 
-  Outputs:
-    AppV2CloudFrontDistributionOutput:
-      Value:
-        'Fn::GetAtt': [ AppV2CloudFrontDistribution, DomainName ]
-      Export:
-        Name: ${env:STACK_NAME}-AppV2CloudFrontDistributionOutput-${env:ENV}
+  # Outputs:
+  #   AppV2CloudFrontDistributionOutput:
+  #     Value:
+  #       'Fn::GetAtt': [ AppV2CloudFrontDistribution, DomainName ]
+  #     Export:
+  #       Name: ${env:STACK_NAME}-AppV2CloudFrontDistributionOutput-${env:ENV}
     
-    AppV2S3Bucket:
-      Description: 'Name of the S3 bucket storing the static files.'
-      Value: !Ref AppV2S3Bucket
-      Export:
-        Name: ${env:STACK_NAME}-AppV2S3Bucket-${env:ENV}
+  #   AppV2S3Bucket:
+  #     Description: 'Name of the S3 bucket storing the static files.'
+  #     Value: !Ref AppV2S3Bucket
+  #     Export:
+  #       Name: ${env:STACK_NAME}-AppV2S3Bucket-${env:ENV}
 
-    AppV2S3BucketURL:
-      Description: 'URL to static website.'
-      Value: https://${env:APPV2S3BUCKET}
-      Export:
-        Name: ${env:STACK_NAME}-AppV2S3BucketURL-${env:ENV}
+  #   AppV2S3BucketURL:
+  #     Description: 'URL to static website.'
+  #     Value: https://${env:APPV2S3BUCKET}
+  #     Export:
+  #       Name: ${env:STACK_NAME}-AppV2S3BucketURL-${env:ENV}
 
-    AppV2CloudFrontDistributionID:
-      Description: 'CloudFront distribution id'
-      Value: !Ref AppV2CloudFrontDistribution
-      Export:
-        Name: ${env:STACK_NAME}-AppV2CloudFrontDistributionID-${env:ENV}
+  #   AppV2CloudFrontDistributionID:
+  #     Description: 'CloudFront distribution id'
+  #     Value: !Ref AppV2CloudFrontDistribution
+  #     Export:
+  #       Name: ${env:STACK_NAME}-AppV2CloudFrontDistributionID-${env:ENV}
