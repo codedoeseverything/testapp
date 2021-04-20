@@ -10,7 +10,7 @@ name: Release to Staging environment
 on:
   workflow_dispatch:
   push:
-    # branches: [ 'trunk' ]
+    branches: [ 'trunk' ]
     # branches: [ 'master' ]
     
 
