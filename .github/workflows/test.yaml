@@ -32,7 +32,7 @@ jobs:
       ROOTSTACK: app-v2
       CFNS3BucketName: devops-cfn-templates1
       PRIVATES3BucketName: devops-shared-private1
-      PUBLICZONENAME: beta.practera.com
+      PUBLICZONENAME: testing1234grwesdf.abc.com
 
 
 
