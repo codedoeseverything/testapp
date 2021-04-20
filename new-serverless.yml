@@ -39,7 +39,7 @@ resources:
     AppV2S3Bucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: !If [HasAPPv2BucketName, '${env:APPV2S3BUCKET}', !Ref 'AWS::NoValue']
+        BucketName: ${env:APPV2S3BUCKET}
         BucketEncryption: 
           ServerSideEncryptionConfiguration: 
           - ServerSideEncryptionByDefault:
