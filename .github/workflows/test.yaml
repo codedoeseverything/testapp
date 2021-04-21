@@ -46,62 +46,62 @@ jobs:
 
 
 
-################################################
-#  NODE ENV
-################################################    
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+# ################################################
+# #  NODE ENV
+# ################################################    
+#       - name: Setup Node.js environment
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: '14'
       
 
-################################################
-#  NODE MODULES CACHE  
-################################################
-      - name: Cache node modules
-        uses: actions/cache@v2
-        id: cache-node-modules
-        env:
-          cache-name: cache
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: |
-            ~/.npm
-            node_modules
-            */*/node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+# ################################################
+# #  NODE MODULES CACHE  
+# ################################################
+#       - name: Cache node modules
+#         uses: actions/cache@v2
+#         id: cache-node-modules
+#         env:
+#           cache-name: cache
+#         with:
+#           # npm cache files are stored in `~/.npm` on Linux/macOS
+#           path: |
+#             ~/.npm
+#             node_modules
+#             */*/node_modules
+#           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-build-${{ env.cache-name }}-
+#             ${{ runner.os }}-build-
+#             ${{ runner.os }}-
 
 
-################################################
-#  NODE MODULES INSTALL  
-################################################
-      - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run:  npm install
+# ################################################
+# #  NODE MODULES INSTALL  
+# ################################################
+#       - name: Install dependencies
+#         if: steps.cache-node-modules.outputs.cache-hit != 'true'
+#         run:  npm install
       
 
-################################################
-#  AWS CLI CONFIGURATION
-################################################ 
-      - name: Configure AWS credentials from $STACK_NAME account in $REGION region
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.DEVOPS_AWS_KEY }}
-          aws-secret-access-key: ${{ secrets.DEVOPS_SECRET_KEY }}
-          aws-region: ${{ env.REGION }}
+# ################################################
+# #  AWS CLI CONFIGURATION
+# ################################################ 
+#       - name: Configure AWS credentials from $STACK_NAME account in $REGION region
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.DEVOPS_AWS_KEY }}
+#           aws-secret-access-key: ${{ secrets.DEVOPS_SECRET_KEY }}
+#           aws-region: ${{ env.REGION }}
 
 
-##########################################################
-#  AWS S3 SYNC - SERVERLESS TEMPLATES 
-##########################################################
-      - name: AWS S3 Sync operation
-        run: |
-          mv new-serverless.yml serverless.yml
-          # aws s3 cp serverless.yml s3://$CFNS3BucketName/$STACK_NAME/$REGION/$ROOTSTACK/sls-templates/serverless.yml
+# ##########################################################
+# #  AWS S3 SYNC - SERVERLESS TEMPLATES 
+# ##########################################################
+#       - name: AWS S3 Sync operation
+#         run: |
+#           mv new-serverless.yml serverless.yml
+#           # aws s3 cp serverless.yml s3://$CFNS3BucketName/$STACK_NAME/$REGION/$ROOTSTACK/sls-templates/serverless.yml
 
 
 ###############################################################
@@ -109,15 +109,17 @@ jobs:
 ##############################################################
       - name: Serverless deployment
         run: |
-          node_modules/.bin/serverless deploy
-          rm serverless.yml
+          cat environment.custom.ts
+          echo "*****************************************"
+          echo "processing"
+          chmod +x env.sh && ./env.sh
+          echo "*****************************************"
+          echo "processed"
+          cat environment.custom.ts
         env:
-          APPV2S3BUCKET: app.${{ env.PUBLICZONENAME }}
-          FILESS3BUCKET: files.$PUBLICZONENAME
-          S3VERSIONING: true 
-          NONCURRENTVERSION_EXPIREINDAYS: 0
-          DEFAULT_EXPIREINDAYS: 0 # Mandatory to disable
-          SLS_DEBUG: '*'
+          CUSTOM_APPKEY: app.${{ env.PUBLICZONENAME }}
+          CUSTOM_PUSHERKEY: files.${{ env.PUBLICZONENAME }}
+          CUSTOM_ENVIRONMENT: ${{ env.ENV }}
 
 
 ##########################################################
