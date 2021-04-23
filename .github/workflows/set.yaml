@@ -70,28 +70,24 @@ jobs:
 
 
 
-# ################################################
-# #  AWS CLI CONFIGURATION
-# ################################################ 
-#       - name: Configure AWS credentials from $STACK_NAME account in $REGION region
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.REGION }}
-#         env:
-#           AWS_ACCESS_KEY_ID=${{ env.AWS_ACCESS_KEY_ID}}
-#           AWS_SECRET_ACCESS_KEY=${{ env.AWS_SECRET_ACCESS_KEY}}
+################################################
+#  AWS CLI CONFIGURATION
+################################################ 
+      - name: Configure AWS credentials from $STACK_NAME account in $REGION region
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.TEST_ACCESS }}
+          aws-secret-access-key: ${{ secrets.TEST_SECRET }}
+          aws-region: ${{ env.REGION }}
 
 
 
-##########################################################
-#  AWS TEST
-##########################################################
-      # - name: AWS S3 Sync operation
-      #   run: |
-      #     aws s3 ls
-      #     echo "List secrets"
-      #     aws secretsmanager list-secrets
-      #     echo "ACCESS="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
-      #     echo "END"
+#########################################################
+ AWS TEST
+#########################################################
+      - name: AWS S3 Sync operation
+        run: |
+          aws s3 ls
+          echo "List secrets"
+          aws secretsmanager list-secrets
+          echo "END"
