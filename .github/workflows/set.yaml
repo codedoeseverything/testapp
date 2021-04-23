@@ -60,6 +60,19 @@ jobs:
           aws s3 ls
           echo "ACCESS="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
           echo "SECRET="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
-          echo $ACCESS
-          echo $SECRET
+          export AWS_ACCESS_KEY_ID=$ACCESS
+          export AWS_ACCESS_KEY_ID=$SECRET
+          aws secretsmanager list-secrets
+          echo "END"
+
+
+##########################################################
+#  AWS TEST
+##########################################################
+      - name: AWS S3 Sync operation
+        run: |
+          aws s3 ls
+          echo "List secrets"
+          aws secretsmanager list-secrets
+          echo "ACCESS="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
           echo "END"
