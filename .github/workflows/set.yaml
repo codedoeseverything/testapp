@@ -1,0 +1,65 @@
+################################################
+#  GITHUB ACTION WORKFLOW NAME
+################################################
+name: TESTING AWS LOGIN
+
+
+################################################
+#  GITHUB ACTION EVENT TRIGGER
+################################################
+on:
+  workflow_dispatch:
+  push:
+    branches: [ 'master' ]
+    
+
+################################################
+#  GITHUB ACTION JOBS
+################################################
+jobs:
+  first-job:
+    name: first-job
+    runs-on: ubuntu-latest
+
+
+################################################
+#  GITHUB ACTIONS GLOBAL ENV VARIABLES  
+################################################
+    env:
+      REGION : ap-southeast-2
+      ENV : stage # Valid values are sandbox,stage,live only
+      STACK_NAME: beta # Valid values are au,us,uk,p2,lf,nu,alpha,beta,shared only
+
+
+
+################################################
+#  GITHUB REPO CHECKOUT 
+################################################
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+
+################################################
+#  AWS CLI CONFIGURATION
+################################################ 
+      - name: Configure AWS credentials from $STACK_NAME account in $REGION region
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEVOPS_AWS_KEY }}
+          aws-secret-access-key: ${{ secrets.DEVOPS_SECRET_KEY }}
+          aws-region: ${{ env.REGION }}
+
+
+##########################################################
+#  AWS TEST
+##########################################################
+      - name: AWS S3 Sync operation
+        run: |
+          aws s3 ls
+          echo "ACCESS="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
+          echo "SECRET="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
+          echo $ACCESS
+          echo $SECRET
+          echo "END"
