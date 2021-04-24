@@ -53,9 +53,9 @@ jobs:
 
 
 ##########################################################
-#  AWS TEST
+#  AWS TEST - AWS Fetch secrets values
 ##########################################################
-      - name: AWS S3 Sync operation
+      - name: AWS Fetch secrets values
         run: |
           aws s3 ls
           echo "List secrets"
@@ -63,26 +63,40 @@ jobs:
           echo "END"
         
           echo "TEST_AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
-          echo "::add-mask::${{ env.TEST_AWS_ACCESS_KEY_ID }}"
+          #echo "::add-mask::${{ env.TEST_AWS_ACCESS_KEY_ID }}"
           #export "AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
           echo "TEST_AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
-          echo "::add-mask::${{ env.TEST_AWS_SECRET_ACCESS_KEY }}"
+          #echo "::add-mask::${{ env.TEST_AWS_SECRET_ACCESS_KEY }}"
           # export "AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
 
 
 
+##########################################################
+#  AWS SECRET - MASK
+##########################################################
+      - name: MASK TEST 
+        id: sets-a-secret
+        run: |
+          ACCESS_KEY=${{ env.TEST_AWS_ACCESS_KEY_ID }}
+          SECRET_ACCESS=${{ env.TEST_AWS_SECRET_ACCESS_KEY }}
+          echo "::add-mask::$SECRET_ACCESS"
+          echo "::add-mask::$ACCESS_KEY"
+          echo "::set-output name=ACCESS_KEY::$ACCESS_KEY"
+          echo "::set-output name=SECRET_ACCESS::$SECRET_ACCESS"
+     
+
 ################################################
-#  AWS CLI CONFIGURATION
+#  TESG AWS USER
 ################################################ 
-      - name: Configure AWS credentials from $STACK_NAME account in $REGION region
+      - name: TESG AWS USER
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ env.TEST_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.TEST_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ steps.sets-a-secret.outputs.ACCESS_KEY }}
+          aws-secret-access-key: ${{ steps.sets-a-secret.outputs.SECRET_ACCESS }}
           aws-region: ${{ env.REGION }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ env.TEST_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEST_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ steps.sets-a-secret.outputs.ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.sets-a-secret.outputs.SECRET_ACCESS }}
           
 
 
