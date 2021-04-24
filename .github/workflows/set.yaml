@@ -61,11 +61,13 @@ jobs:
           echo "List secrets"
           aws secretsmanager list-secrets
           echo "END"
-
-          # echo "TEST_AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
-          export "AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
-          # echo "TEST_AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
-          export "AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
+        
+          echo "TEST_AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
+          echo "::add-mask::$TEST_AWS_ACCESS_KEY_ID"
+          #export "AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
+          echo "TEST_AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
+          echo "::add-mask::$TEST_AWS_SECRET_ACCESS_KEY"
+          # export "AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
 
 
 
@@ -75,7 +77,13 @@ jobs:
       - name: Configure AWS credentials from $STACK_NAME account in $REGION region
         uses: aws-actions/configure-aws-credentials@v1
         with:
+          aws-access-key-id: ${{ env.TEST_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.TEST_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.TEST_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.TEST_AWS_SECRET_ACCESS_KEY }}
+          
 
 
 
@@ -86,7 +94,9 @@ jobs:
 #########################################################
       - name: AWS S3 Sync operation
         run: |
+          echo "s3 pass"
           aws s3 ls
+          echo $TEST_AWS_SECRET_ACCESS_KEY
           echo "List secrets"
           aws secretsmanager list-secrets
           echo "END"
