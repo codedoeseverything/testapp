@@ -88,9 +88,11 @@ jobs:
 #########################################################
       - name: AWS S3 Sync operation
         run: |
-          echo "s3 pass"
-          aws s3 ls
-          echo $TEST_AWS_SECRET_ACCESS_KEY
+          # echo "s3 pass"
+          # aws s3 ls
+          # echo $TEST_AWS_SECRET_ACCESS_KEY
+          echo "A is: " $A
+          echo "S is : " $S
           echo "List secrets"
           aws secretsmanager list-secrets
           echo "END"
