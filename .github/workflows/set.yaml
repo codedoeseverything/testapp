@@ -63,10 +63,10 @@ jobs:
           echo "END"
         
           echo "TEST_AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
-          echo "::add-mask::$TEST_AWS_ACCESS_KEY_ID"
+          echo "::add-mask::${{ env.TEST_AWS_ACCESS_KEY_ID }}"
           #export "AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
           echo "TEST_AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
-          echo "::add-mask::$TEST_AWS_SECRET_ACCESS_KEY"
+          echo "::add-mask::${{ env.TEST_AWS_SECRET_ACCESS_KEY }}"
           # export "AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
 
 
