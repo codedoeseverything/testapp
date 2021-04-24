@@ -52,35 +52,14 @@ jobs:
           aws-region: ${{ env.REGION }}
 
 
-# ##########################################################
-# #  AWS TEST - AWS Fetch secrets values
-# ##########################################################
-#       - name: AWS Fetch secrets values
-#         run: |
-#           aws s3 ls
-#           echo "List secrets"
-#           aws secretsmanager list-secrets
-#           echo "END"
-        
-#           # #echo "TEST_AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey) >> $GITHUB_ENV
-#           # #echo "::add-mask::${{ env.TEST_AWS_ACCESS_KEY_ID }}"
-#           # export "AWS_ACCESS_KEY_ID="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
-#           # #echo "TEST_AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey) >> $GITHUB_ENV
-#           # #echo "::add-mask::${{ env.TEST_AWS_SECRET_ACCESS_KEY }}"
-#           # export "AWS_SECRET_ACCESS_KEY="$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
-
-
-
 ##########################################################
 #  AWS SECRET - MASK
 ##########################################################
       - name: MASK TEST 
-        id: sets-a-secret
+        id: MaskSecretValue
         run: |
           A=$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .AccessKey)
           S=$(aws secretsmanager get-secret-value --secret-id test| jq --raw-output '.SecretString' | jq -r .SecretKey)
-          echo "A is " $A
-          echo "S is " $S
           echo "::add-mask::$A"
           echo "::add-mask::$S"
           echo "After mask A is " $A
@@ -95,12 +74,12 @@ jobs:
       - name: TESG AWS USER
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ steps.sets-a-secret.outputs.A }}
-          aws-secret-access-key: ${{ steps.sets-a-secret.outputs.S }}
+          aws-access-key-id: ${{ steps.MaskSecretValue.outputs.A }}
+          aws-secret-access-key: ${{ steps.MaskSecretValue.outputs.S }}
           aws-region: ${{ env.REGION }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ steps.sets-a-secret.outputs.A }}
-          AWS_SECRET_ACCESS_KEY: ${{ steps.sets-a-secret.outputs.S }}
+          AWS_ACCESS_KEY_ID: ${{ steps.MaskSecretValue.outputs.A }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.MaskSecretValue.outputs.S }}
           
 
 
